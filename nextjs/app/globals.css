@@ -1,0 +1,179 @@
+/* docs: linking-and-navigating#client-side-transitions */
+/* Оформление намеренно минимальное — ровно столько, чтобы видеть структуру и
+   чтобы была заметна проблема прокрутки под sticky-хедер и её фикс через
+   scroll-padding-top. */
+
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #666666;
+  --line: #dddddd;
+  --header-h: 4rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ФИКС: без этого якорь на странице после клиентского перехода оказывается
+   ПОД sticky-хедером. Выключить можно кнопкой на /scroll — и увидеть, как
+   ломается. */
+html {
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+html.no-scroll-padding {
+  scroll-padding-top: 0;
+}
+
+body {
+  margin: 0;
+  font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+a {
+  color: #0066cc;
+}
+
+code {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  background: #f2f2f2;
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1rem;
+  background: #fafafa;
+  border-bottom: 1px solid var(--line);
+}
+
+.site-nav {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.content {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 6rem;
+}
+
+.frame {
+  border: 1px dashed var(--line);
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+}
+
+.frame > h2:first-child,
+.frame > h3:first-child {
+  margin-top: 0;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.grid-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.35rem;
+}
+
+/* --- скелетоны (loading.tsx и фолбэки <Suspense>) ------------------------- */
+
+.skeleton {
+  background: linear-gradient(90deg, #ececec, #f7f7f7, #ececec);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* --- подсказка useLinkStatus ---------------------------------------------- */
+/* docs: linking-and-navigating#slow-networks
+   Фиксированный размер, старт с opacity: 0 и задержка анимации 100 мс: на
+   быстрых переходах подсказка не мигает, а вёрстка не дёргается. */
+
+.link-hint {
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-left: 0.25rem;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.link-hint.is-pending {
+  visibility: visible;
+  animation-name: fadeIn, pulse;
+  animation-duration: 200ms, 1s;
+  animation-delay: 100ms, 100ms;
+  animation-timing-function: ease, ease-in-out;
+  animation-iteration-count: 1, infinite;
+  animation-fill-mode: forwards, none;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 0.35;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+/* --- тема (ThemeProvider оборачивает только {children}) ------------------- */
+
+[data-theme="dark"] {
+  background: #14161a;
+  color: #e8e8e8;
+  padding: 0.5rem;
+}
+
+[data-theme="dark"] a {
+  color: #79b8ff;
+}
+
+[data-theme="dark"] code {
+  background: #2a2d33;
+}
+
+/* --- демо /scroll --------------------------------------------------------- */
+
+.tall-section {
+  min-height: 70vh;
+  border-top: 1px solid var(--line);
+  padding-top: 0.5rem;
+}

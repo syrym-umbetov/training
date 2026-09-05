@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "title": "Client-side fetching starts after hydration",
+    "content": "The browser downloads the JS, hydrates, and only then issues the request."
+  },
+  {
+    "id": 2,
+    "title": "SWR revalidates on focus by default",
+    "content": "Switch to another tab and back to watch it refetch."
+  },
+  {
+    "id": 3,
+    "title": "Server fetching needs no CORS headers",
+    "content": "Server to server requests are not subject to the browser same-origin policy."
+  },
+  {
+    "id": 4,
+    "title": "Credentials cannot be hidden in the browser",
+    "content": "Anything the client sends is visible in devtools."
+  },
+  {
+    "id": 5,
+    "title": "Every client library ships bytes",
+    "content": "SWR is small, but it is still JavaScript the user has to download."
+  }
+]
