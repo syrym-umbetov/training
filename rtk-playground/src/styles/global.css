@@ -1,0 +1,219 @@
+/* Один файл на всё приложение. Никаких UI-библиотек — они бы увели внимание
+   от сути, а нам нужны только читаемые блоки, таблицы и подсветка. */
+
+:root {
+  --bg: #0f1116;
+  --bg-panel: #171a21;
+  --bg-raised: #1f232c;
+  --border: #2b3140;
+  --text: #dfe3ec;
+  --text-dim: #8b93a7;
+  --accent: #61a5fa;
+  --yellow: #e0b341;
+  --green: #4ec98b;
+  --red: #f0685f;
+  --purple: #b48ce0;
+  --radius: 8px;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+code, pre, .mono { font-family: var(--mono); font-size: 13px; }
+
+a { color: var(--accent); }
+
+/* ---------- Каркас ---------- */
+.shell { display: grid; grid-template-columns: 260px 1fr 340px; min-height: 100vh; }
+
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--bg-panel);
+  padding: 16px 0;
+  overflow-y: auto;
+  max-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+.sidebar h1 { font-size: 16px; margin: 0 16px 4px; }
+.sidebar .sub { font-size: 12px; color: var(--text-dim); margin: 0 16px 16px; }
+.sidebar .group { font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text-dim); margin: 16px 16px 6px; }
+.sidebar a {
+  display: flex; gap: 8px; align-items: baseline;
+  padding: 5px 16px; color: var(--text-dim); text-decoration: none; font-size: 13px;
+  border-left: 2px solid transparent;
+}
+.sidebar a:hover { background: var(--bg-raised); color: var(--text); }
+.sidebar a.active { color: var(--accent); border-left-color: var(--accent); background: var(--bg-raised); }
+.sidebar a .num { font-family: var(--mono); font-size: 11px; opacity: .6; min-width: 18px; }
+.sidebar a.seen .num::after { content: " ✓"; color: var(--green); }
+
+.main { padding: 24px 32px 80px; max-width: 900px; overflow-x: hidden; }
+
+.rightbar {
+  border-left: 1px solid var(--border);
+  background: var(--bg-panel);
+  position: sticky; top: 0; height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* ---------- Заголовки страницы ---------- */
+.page-head { margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+.page-head .kicker { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.page-head h2 { margin: 4px 0 8px; font-size: 24px; }
+.page-head p { margin: 0; color: var(--text-dim); }
+
+/* ---------- Блоки ---------- */
+.card {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin: 16px 0;
+}
+.card > h3 { margin: 0 0 10px; font-size: 15px; }
+.card.theory { border-left: 3px solid var(--accent); }
+.card.hood { border-left: 3px solid var(--purple); }
+.card.warn { border-left: 3px solid var(--yellow); }
+.card.bad  { border-left: 3px solid var(--red); }
+.card.good { border-left: 3px solid var(--green); }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* ---------- Кнопки ---------- */
+button {
+  font: inherit; font-size: 13px;
+  background: var(--bg-raised); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 6px 12px; cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.danger { border-color: #5a2b2b; color: var(--red); }
+button.primary { border-color: var(--accent); color: var(--accent); }
+
+input, select, textarea {
+  font: inherit; font-size: 13px;
+  background: var(--bg); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+label { font-size: 13px; color: var(--text-dim); }
+
+/* ---------- Тумблер «Сломать» ---------- */
+.breaker {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px dashed var(--yellow); border-radius: 6px;
+  padding: 6px 12px; font-size: 13px; cursor: pointer; user-select: none;
+  background: transparent; color: var(--yellow);
+}
+.breaker.on { background: rgba(224,179,65,.12); border-style: solid; }
+.breaker input { display: none; }
+
+/* ---------- Бейджи ---------- */
+.badge {
+  display: inline-block; font-family: var(--mono); font-size: 11px;
+  padding: 2px 7px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--bg-raised); color: var(--text-dim);
+}
+.badge.render { border-color: var(--accent); color: var(--accent); }
+.badge.hot { border-color: var(--red); color: var(--red); }
+.badge.green { border-color: var(--green); color: var(--green); }
+.badge.yellow { border-color: var(--yellow); color: var(--yellow); }
+.badge.purple { border-color: var(--purple); color: var(--purple); }
+
+/* ---------- Лог экшенов ---------- */
+.log-head {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.log-head strong { font-size: 13px; }
+.log-list { overflow-y: auto; flex: 1; padding: 6px; }
+.log-item {
+  font-family: var(--mono); font-size: 11px;
+  border-left: 3px solid var(--border); background: var(--bg-raised);
+  padding: 5px 8px; margin-bottom: 4px; border-radius: 0 4px 4px 0;
+  word-break: break-all;
+}
+.log-item.pending   { border-left-color: var(--yellow); }
+.log-item.fulfilled { border-left-color: var(--green); }
+.log-item.rejected  { border-left-color: var(--red); }
+.log-item.plain     { border-left-color: var(--accent); }
+.log-item .t { color: var(--text-dim); font-size: 10px; }
+.log-item .type { display: block; color: var(--text); margin: 2px 0; }
+.log-item .payload { color: var(--text-dim); white-space: pre-wrap; }
+
+/* ---------- JSON-инспектор ---------- */
+details.inspector { border: 1px solid var(--border); border-radius: 6px; margin: 8px 0; }
+details.inspector > summary {
+  cursor: pointer; padding: 8px 12px; font-size: 13px; user-select: none;
+  background: var(--bg-raised); border-radius: 6px;
+}
+details.inspector[open] > summary { border-bottom: 1px solid var(--border); border-radius: 6px 6px 0 0; }
+details.inspector pre {
+  margin: 0; padding: 12px; overflow-x: auto; font-size: 12px;
+  max-height: 340px; overflow-y: auto;
+}
+
+pre.code {
+  background: #0b0d12; border: 1px solid var(--border); border-radius: 6px;
+  padding: 12px; overflow-x: auto; margin: 8px 0; font-size: 12.5px; line-height: 1.5;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+th { color: var(--text-dim); font-weight: 500; font-size: 12px; }
+td.mono { font-family: var(--mono); font-size: 12px; }
+
+ul.tight { margin: 6px 0; padding-left: 20px; }
+ul.tight li { margin: 3px 0; }
+
+.dim { color: var(--text-dim); }
+.hint { font-size: 12.5px; color: var(--text-dim); }
+.big-num { font-family: var(--mono); font-size: 26px; }
+
+/* ---------- Конвейер ---------- */
+.pipe { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+.pipe-node {
+  border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px;
+  font-size: 12px; font-family: var(--mono); background: var(--bg-raised);
+  transition: all .25s ease; opacity: .35;
+}
+.pipe-node.lit { opacity: 1; border-color: var(--accent); color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(97,165,250,.14); }
+.pipe-node.blocked { opacity: 1; border-color: var(--red); color: var(--red); }
+.pipe-arrow { color: var(--text-dim); }
+
+/* ---------- Тост ---------- */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--bg-raised); border: 1px solid var(--green); color: var(--green);
+  padding: 10px 18px; border-radius: 8px; font-size: 14px; z-index: 50;
+}
+.toast.err { border-color: var(--red); color: var(--red); }
+
+/* ---------- Q&A ---------- */
+details.qa { border-bottom: 1px solid var(--border); padding: 10px 0; }
+details.qa > summary { cursor: pointer; font-weight: 500; }
+details.qa > div { padding: 8px 0 0 16px; color: var(--text-dim); font-size: 14px; }
+
+/* ---------- Узкий экран ---------- */
+@media (max-width: 1100px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; }
+  .main { padding: 20px 16px 40px; max-width: none; }
+  .rightbar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 40vh;
+    border-left: none; border-top: 1px solid var(--border); z-index: 40;
+  }
+  .rightbar.collapsed { height: 40px; }
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+}
