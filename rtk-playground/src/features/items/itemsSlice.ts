@@ -10,8 +10,10 @@ export interface Item {
 
 // ============================================================================
 // ВАРИАНТ 1: наивное хранение массивом.
-// Обновление одного элемента — это .findIndex() (O(n)) + пересборка массива (O(n)).
-// На 1000 элементов это ещё терпимо, на 50 000 — уже заметный фриз.
+// Обновление одного элемента — это .find() (O(n)) + пересборка массива.
+// И есть ещё скрытая цена, про которую забывают: .find() внутри редьюсера
+// идёт по Immer-драфту, а тот создаёт Proxy для каждого посещённого элемента.
+// То есть проход по 1000 элементов — это ещё и до 1000 созданных прокси.
 // ============================================================================
 interface PlainState {
   items: Item[];
@@ -27,7 +29,6 @@ export const plainItemsSlice = createSlice({
     setAll(state, action: PayloadAction<Item[]>) {
       state.items = action.payload;
     },
-    // Поиск через .find() по всему массиву.
     toggleOne(state, action: PayloadAction<{ id: number; ms: number }>) {
       const item = state.items.find((i) => i.id === action.payload.id);
       if (item) item.done = !item.done;
@@ -44,20 +45,16 @@ export const plainItemsSlice = createSlice({
 export const { setAll, toggleOne, removeOnePlain, clearPlain } = plainItemsSlice.actions;
 
 // ============================================================================
-// ВАРИАНТ 2: нормализованное хранение через createEntityAdapter.
+// ВАРИАНТ 2: createEntityAdapter БЕЗ sortComparer.
 // Форма стейта: { ids: number[], entities: { [id]: Item } }
 // Обновление одного элемента — прямой доступ по ключу, O(1).
 // ids нужен отдельно, потому что порядок ключей объекта в JS не гарантирован
-// для числовых ключей (они сортируются), а порядок отображения должен быть нашим.
+// (числовые сортируются сами), а порядок отображения должен быть нашим.
+//
+// Это честный оппонент массиву в замере: сравниваем структуру данных,
+// а не структуру плюс сортировку.
 // ============================================================================
-export const itemsAdapter = createEntityAdapter<Item>({
-  // sortComparer держит ids отсортированными ПРИ КАЖДОЙ вставке.
-  // Плата: addMany/upsertMany становятся O(n log n) вместо O(n).
-  // Выгода: не нужно сортировать в селекторе на каждый рендер.
-  // Если сортировка меняется по клику пользователя — sortComparer не подходит,
-  // сортировать надо в createSelector.
-  sortComparer: (a, b) => a.name.localeCompare(b.name, 'ru', { numeric: true }),
-});
+export const itemsAdapter = createEntityAdapter<Item>();
 
 // getInitialState умеет принимать свои поля — их кладём рядом с ids/entities.
 const entityInitial = itemsAdapter.getInitialState({
@@ -69,7 +66,7 @@ export const entityItemsSlice = createSlice({
   name: 'entityItems',
   initialState: entityInitial,
   reducers: {
-    // Готовые CRUD-редьюсеры адаптера можно класть прямо в reducers.
+    // Готовые CRUD-редьюсеры адаптера можно вызывать прямо внутри своих.
     setAllEntities(state, action: PayloadAction<Item[]>) {
       itemsAdapter.setAll(state, action.payload);
       state.loadedCount = action.payload.length;
@@ -103,7 +100,50 @@ export const {
   setAllEntities, upsertManyItems, toggleOneEntity, removeOneEntity, clearEntities,
 } = entityItemsSlice.actions;
 
-// getSelectors генерирует набор готовых мемоизированных селекторов.
+// ============================================================================
+// ВАРИАНТ 3: тот же адаптер, но С sortComparer.
+// Нужен, чтобы ИЗМЕРИТЬ цену сортировки при вставке, а не просто заявить её.
+//
+// sortComparer держит ids отсортированными при КАЖДОЙ мутации коллекции.
+// Выгода: не нужно сортировать в селекторе на каждый рендер.
+// Плата: каждая вставка и каждое обновление тянут за собой пересортировку,
+// а localeCompare с опцией numeric — одна из самых дорогих строковых операций
+// в JS. На тысяче элементов это отлично видно на замере.
+// ============================================================================
+export const sortedItemsAdapter = createEntityAdapter<Item>({
+  sortComparer: (a, b) => a.name.localeCompare(b.name, 'ru', { numeric: true }),
+});
+
+export const sortedItemsSlice = createSlice({
+  name: 'sortedItems',
+  initialState: sortedItemsAdapter.getInitialState(),
+  reducers: {
+    setAllSorted(state, action: PayloadAction<Item[]>) {
+      sortedItemsAdapter.setAll(state, action.payload);
+    },
+    upsertManySorted(state, action: PayloadAction<Item[]>) {
+      sortedItemsAdapter.upsertMany(state, action.payload);
+    },
+    toggleOneSorted(state, action: PayloadAction<number>) {
+      const item = state.entities[action.payload];
+      if (item) {
+        sortedItemsAdapter.updateOne(state, {
+          id: action.payload,
+          changes: { done: !item.done },
+        });
+      }
+    },
+    clearSorted(state) {
+      sortedItemsAdapter.removeAll(state);
+    },
+  },
+});
+
+export const { setAllSorted, upsertManySorted, toggleOneSorted, clearSorted } =
+  sortedItemsSlice.actions;
+
+// getSelectors генерирует набор готовых селекторов.
 // Аргумент — как достать срез адаптера из корня стора.
 export const itemsSelectors = itemsAdapter.getSelectors<RootState>((s) => s.entityItems);
+export const sortedItemsSelectors = sortedItemsAdapter.getSelectors<RootState>((s) => s.sortedItems);
 // Доступны: selectAll, selectById, selectIds, selectEntities, selectTotal

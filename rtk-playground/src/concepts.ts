@@ -66,7 +66,7 @@ export const concepts: Concept[] = [
     files: ['src/pages/block3/UseSelectorPage.tsx'],
     gist: 'Сравнение по ===. Новый массив каждый раз = рендер на любой экшен.' },
   { n: 13, path: '/create-selector', title: 'createSelector', block: 'Блок 3. Селекторы и производительность',
-    files: ['src/features/todos/selectors.ts'],
+    files: ['src/features/todos/selectors.ts', 'src/pages/block3/CreateSelectorPage.tsx'],
     gist: 'Кеш размера 1. Селектор с аргументом в двух компонентах → фабрика.' },
   { n: 14, path: '/shallow-equal', title: 'shallowEqual', block: 'Блок 3. Селекторы и производительность',
     files: ['src/pages/block3/ShallowEqualPage.tsx'],
@@ -77,7 +77,7 @@ export const concepts: Concept[] = [
 
   { n: 16, path: '/entity-adapter', title: 'createEntityAdapter', block: 'Блок 4. Структуры данных',
     files: ['src/features/items/itemsSlice.ts'],
-    gist: '{ids, entities}: доступ O(1) вместо .find() на 1000 элементов.' },
+    gist: '{ids, entities}: O(1) вместо .find(). И замеренная цена sortComparer.' },
   { n: 17, path: '/cross-slice', title: 'Кросс-слайсовая реакция', block: 'Блок 4. Структуры данных',
     files: ['src/features/auth/authSlice.ts', 'src/features/cart/cartSlice.ts'],
     gist: 'Один logout — три слайса сбросились. Связь через экшен, не через импорт.' },

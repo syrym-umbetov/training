@@ -1,4 +1,4 @@
-import { combineSlices, configureStore, type Reducer, type UnknownAction } from '@reduxjs/toolkit';
+import { combineSlices, configureStore, type Reducer } from '@reduxjs/toolkit';
 import { actionLogMiddleware } from './actionLog';
 import { analyticsMiddleware } from './analyticsMiddleware';
 import { apiClient } from './apiClient';
@@ -11,7 +11,7 @@ import { cartSlice } from '../features/cart/cartSlice';
 import { checksSlice } from '../features/checks/checksSlice';
 import { conditionSlice } from '../features/async/conditionSlice';
 import { counterSlice } from '../features/counter/counterSlice';
-import { entityItemsSlice, plainItemsSlice } from '../features/items/itemsSlice';
+import { entityItemsSlice, plainItemsSlice, sortedItemsSlice } from '../features/items/itemsSlice';
 import { errorsSlice } from '../features/async/errorsSlice';
 import { formSlice } from '../features/async/formSlice';
 import { notificationsSlice } from '../features/notifications/notificationsSlice';
@@ -19,14 +19,30 @@ import { profileSlice } from '../features/profile/profileSlice';
 import { searchSlice } from '../features/search/searchSlice';
 import { loadSettings, settingsSlice } from '../features/settings/settingsSlice';
 import { thunkApiSlice } from '../features/async/thunkApiSlice';
+import { todosSlice } from '../features/todos/todosSlice';
+
+// ============================================================================
+// ТИПЫ ЛЕНИВО ПОДГРУЖАЕМЫХ СЛАЙСОВ
+// Объявляем их ЗАРАНЕЕ, чтобы RootState знал про такие поля как
+// «возможно отсутствующие» (опциональные). Иначе после inject() пришлось бы
+// кастовать стейт в каждом селекторе.
+// ============================================================================
+export interface LazyStatsState {
+  loadedAt: string;
+  hits: number;
+}
+
+export interface LazySlices {
+  lazyStats: LazyStatsState;
+}
 
 // ============================================================================
 // combineSlices вместо combineReducers.
 // Отличие в одном: у полученного редьюсера есть метод .inject(), которым
 // можно ДОБАВИТЬ слайс в уже работающий стор. Это нужно для code splitting:
 // слайс приезжает вместе с чанком страницы, а не лежит в главном бандле.
-// combineSlices берёт ключ из slice.reducerPath (по умолчанию = slice.name),
-// поэтому вручную писать { counter: counterReducer } не надо.
+// Ключ берётся из slice.reducerPath (по умолчанию = slice.name), поэтому
+// писать { counter: counterReducer } вручную не надо.
 // ============================================================================
 export const rootReducer = combineSlices(
   counterSlice,
@@ -38,43 +54,27 @@ export const rootReducer = combineSlices(
   settingsSlice,
   cartSlice,
   profileSlice,
+  todosSlice,
   thunkApiSlice,
   errorsSlice,
   conditionSlice,
   formSlice,
   plainItemsSlice,
   entityItemsSlice,
+  sortedItemsSlice,
   baseApi,
 ).withLazyLoadedSlices<LazySlices>();
 
-// Слайсы, которые будут подгружены лениво. Объявляем ИХ ТИПЫ заранее,
-// чтобы RootState знал про них как про "возможно отсутствующие" (поле опционально).
-export interface LazySlices {
-  lazyStats: { loadedAt: string; hits: number };
-}
-
-// ============================================================================
-// Слайс todos подключаем отдельно: он нужен для страницы про replaceReducer,
-// где мы будем показывать подмену редьюсера на лету.
-// ============================================================================
-import todosReducer from '../features/todos/todosSlice';
-
 export const store = configureStore({
-  reducer: (state, action) => {
-    // Оборачиваем combineSlices, чтобы вручную примешать todos.
-    // В реальном коде так делать не нужно — здесь это для наглядности страницы
-    // про замену редьюсеров.
-    const base = rootReducer(state as never, action) as Record<string, unknown>;
-    const prevTodos = (state as Record<string, unknown> | undefined)?.todos;
-    const nextTodos = todosReducer(prevTodos as never, action as UnknownAction);
-    if (base.todos === nextTodos) return base as never;
-    return { ...base, todos: nextTodos } as never;
-  },
+  reducer: rootReducer,
 
   // preloadedState: сюда попадает гидрация из localStorage ДО первого рендера.
+  // Если вместо этого диспатчить hydrate() после создания стора, первый рендер
+  // успеет произойти с дефолтными настройками — и пользователь увидит вспышку
+  // не своей темы.
   preloadedState: (() => {
     const settings = loadSettings();
-    return settings ? ({ settings } as never) : undefined;
+    return settings ? { settings } : undefined;
   })(),
 
   // ======================================================================
@@ -83,15 +83,15 @@ export const store = configureStore({
   //   2. immutableStateInvariant    — ловит мутацию стейта мимо Immer (только dev)
   //   3. serializableStateInvariant — ловит несериализуемое в стейте/экшенах (только dev)
   // Плюс автоматически цепляет Redux DevTools.
-  // Всё это в "голом" Redux нужно было подключать руками.
+  // Всё это в «голом» Redux подключалось руками.
   // ======================================================================
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       // extraArgument попадает в thunk'и как thunkAPI.extra
       thunk: { extraArgument: { api: apiClient } },
       serializableCheck: {
-        // Игнорируем служебные экшены RTK Query и наш демонстрационный экшен,
-        // который намеренно кладёт Date в стор (иначе консоль зальёт warning'ами).
+        // Игнорируем наш демонстрационный экшен, который намеренно кладёт Date
+        // в стор — иначе консоль зальёт предупреждениями на странице про проверки.
         ignoredActions: ['checks/putNonSerializable'],
         ignoredPaths: ['checks.bad'],
       },
@@ -99,7 +99,7 @@ export const store = configureStore({
       // ВАЖНО: prepend, а не concat.
       // listenerMiddleware должен стоять ПЕРЕД thunk, чтобы видеть экшены раньше.
       .prepend(listenerMiddleware.middleware)
-      // concat добавляет в КОНЕЦ — наш логгер увидит экшен последним,
+      // concat добавляет в КОНЕЦ — логгер увидит экшен последним,
       // уже после того как thunk отработал. Для лога это то, что нужно.
       .concat(actionLogMiddleware, analyticsMiddleware, baseApi.middleware),
 
@@ -108,17 +108,26 @@ export const store = configureStore({
 
 // ============================================================================
 // ТИПИЗАЦИЯ
-// RootState выводится ИЗ стора, а не пишется руками. Как только добавишь слайс —
-// тип обновится сам. Руками написанный интерфейс обязательно разъедется с реальностью.
+// RootState выводится ИЗ редьюсера, а не пишется руками. Как только добавишь
+// слайс — тип обновится сам. Руками написанный интерфейс обязательно
+// разъедется с реальностью.
 // ============================================================================
-export type RootState = ReturnType<typeof rootReducer> & { todos: ReturnType<typeof todosReducer> };
+export type RootState = ReturnType<typeof rootReducer>;
 
 // AppDispatch отличается от базового Dispatch тем, что знает про thunk'и.
 // Нетипизированный useDispatch() возвращает Dispatch<UnknownAction>, который
 // НЕ принимает функцию → dispatch(login(...)) не скомпилируется.
 export type AppDispatch = typeof store.dispatch;
+export type AppStore = typeof store;
 
-/** Хелпер для страницы про code splitting: подменить корневой редьюсер на лету. */
+/**
+ * Хелпер для страницы про code splitting.
+ *
+ * store.replaceReducer подменяет КОРНЕВОЙ редьюсер целиком. Стейт при этом
+ * сохраняется: Redux сразу после замены диспатчит служебный экшен @@REPLACE,
+ * и новый редьюсер получает старый стейт как preloadedState.
+ * Ветки, которых в новом редьюсере нет, просто отваливаются.
+ */
 export function replaceRootReducer(next: Reducer): void {
   store.replaceReducer(next);
 }

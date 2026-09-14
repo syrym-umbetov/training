@@ -63,9 +63,16 @@ export const conditionSlice = createSlice({
         state.guarded.status = 'done';
         state.guarded.fulfilled += 1;
       })
-      .addCase(loadGuarded.rejected, (state) => {
-        // Сюда попадаем и при отсечении condition'ом — но тогда meta.condition === true
-        // и трогать status не надо, запрос-то всё ещё летит.
+      .addCase(loadGuarded.rejected, (state, action) => {
+        // ВНИМАНИЕ, ТОНКИЙ МОМЕНТ.
+        // Сюда попадают ДВА разных случая:
+        //   1) настоящий провал запроса;
+        //   2) отсечение самим condition (meta.condition === true) — мы включили
+        //      dispatchConditionRejection, чтобы это было видно в ActionLog.
+        // Во втором случае запрос ВСЁ ЕЩЁ ЛЕТИТ, и сбрасывать status нельзя:
+        // иначе следующий клик увидит status !== 'loading', condition пропустит его,
+        // и защита развалится. Из пяти кликов проходило бы три, а не один.
+        if (action.meta.condition) return;
         state.guarded.status = 'idle';
       })
       .addCase(loadNaive.pending, (state) => {
