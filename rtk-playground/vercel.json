@@ -3,6 +3,10 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+
+  "//ignoreCommand": "Пересобирать только когда изменился САМ этот каталог. Vercel запускает команду из rootDirectory: код выхода 0 = пропустить сборку, ненулевой = собирать. Без этого пуш, тронувший только qr-generator/, гонял бы и сборку стенда. Если HEAD^ недоступен (первый деплой, мелкий клон), команда упадёт с ненулевым кодом и сборка просто пойдёт — безопасное поведение по умолчанию.",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD .",
+
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
