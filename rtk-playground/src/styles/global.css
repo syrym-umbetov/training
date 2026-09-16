@@ -29,6 +29,13 @@ body {
 
 code, pre, .mono { font-family: var(--mono); font-size: 13px; }
 
+/* Инлайновый <code> внутри текста — единственное, что ещё переполняло
+   страницу на ширине телефона: длинный идентификатор вроде
+   dispatchConditionRejection не переносится по умолчанию.
+   :not(pre) > code — чтобы правило не задело код внутри <pre>,
+   где переносы как раз не нужны: там своя горизонтальная прокрутка. */
+:not(pre) > code { overflow-wrap: anywhere; }
+
 a { color: var(--accent); }
 
 /* ---------- Каркас ---------- */
@@ -57,7 +64,13 @@ a { color: var(--accent); }
 .sidebar a .num { font-family: var(--mono); font-size: 11px; opacity: .6; min-width: 18px; }
 .sidebar a.seen .num::after { content: " ✓"; color: var(--green); }
 
-.main { padding: 24px 32px 80px; max-width: 900px; overflow-x: hidden; }
+/* max-width раньше был 900px, и на широком экране три колонки сравнения
+   ужимались до ~290px каждая — код в них читать было нечем.
+   overflow-x: hidden убран намеренно: он не чинил переполнение, а прятал его,
+   из-за чего правый край карточки оказывался недоступен. Теперь переполняться
+   нечему (см. min-width: 0 ниже), а если что-то переполнится в будущем —
+   это будет видно, а не срезано. */
+.main { padding: 24px 32px 80px; max-width: 1180px; min-width: 0; }
 
 .rightbar {
   border-left: 1px solid var(--border);
@@ -84,9 +97,23 @@ a { color: var(--accent); }
 .card.bad  { border-left: 3px solid var(--red); }
 .card.good { border-left: 3px solid var(--green); }
 
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+/* auto-fit + minmax вместо жёсткого числа колонок: если ширины не хватает,
+   сетка сама перенесёт карточки на следующую строку, а не будет ужимать их
+   до нечитаемого состояния. */
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* ГЛАВНОЕ ПРАВИЛО ПРОТИВ ОБРЕЗАННЫХ КАРТОЧЕК.
+   У grid-элемента min-width по умолчанию auto — «не уже собственного
+   содержимого». Внутри карточек лежит <pre> с white-space: pre, то есть
+   с непереносимыми строками, и её ширина становилась минимумом для всей
+   колонки. Колонки раздували сетку шире .main, а .main обрезал её по краю.
+   min-width: 0 снимает этот запрет: колонка сжимается, а горизонтальную
+   прокрутку берёт на себя сама <pre> (overflow-x: auto ниже). */
+.shell > *,
+.grid2 > *,
+.grid3 > * { min-width: 0; }
 
 /* ---------- Кнопки ---------- */
 button {
@@ -159,17 +186,26 @@ details.inspector > summary {
 }
 details.inspector[open] > summary { border-bottom: 1px solid var(--border); border-radius: 6px 6px 0 0; }
 details.inspector pre {
-  margin: 0; padding: 12px; overflow-x: auto; font-size: 12px;
-  max-height: 340px; overflow-y: auto;
+  margin: 0; padding: 12px; overflow: auto; font-size: 12px;
+  max-height: 340px; max-width: 100%;
 }
 
+/* max-width: 100% обязателен вместе с overflow-x: auto — без него блок
+   растягивается под самую длинную строку и тащит за собой родителя,
+   вместо того чтобы прокручиваться внутри себя. */
 pre.code {
   background: #0b0d12; border: 1px solid var(--border); border-radius: 6px;
-  padding: 12px; overflow-x: auto; margin: 8px 0; font-size: 12.5px; line-height: 1.5;
+  padding: 12px; overflow-x: auto; max-width: 100%;
+  margin: 8px 0; font-size: 12.5px; line-height: 1.5;
 }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+/* overflow-wrap: anywhere — чтобы длинный идентификатор или строка кода
+   в ячейке переносились, а не расширяли таблицу за пределы карточки. */
+th, td {
+  text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
 th { color: var(--text-dim); font-weight: 500; font-size: 12px; }
 td.mono { font-family: var(--mono); font-size: 12px; }
 
