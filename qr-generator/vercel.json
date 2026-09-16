@@ -4,7 +4,6 @@
   "buildCommand": null,
   "installCommand": null,
   "outputDirectory": ".",
-  "//ignoreCommand": "Пересобирать только когда изменился САМ этот каталог. Код выхода 0 = пропустить сборку. Без этого пуш, тронувший только rtk-playground/, гонял бы и сборку этой страницы.",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD .",
   "headers": [
     {
