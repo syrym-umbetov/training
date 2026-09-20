@@ -31,22 +31,52 @@
 Репозиторий мультипроектный: в корне лежат старые JS-упражнения, а также `rtk-playground/`,
 `qr-generator/` и `nextjs/`. Дожо живёт в своём каталоге и ни с чем не пересекается.
 
+Дожо — это веб-приложение. Компилятор TypeScript 5.9.3 работает прямо в браузере
+(monaco-editor несёт ровно эту версию), поэтому ошибки, их тексты и выведенные типы —
+настоящие, а не имитация. Уроки описываются данными в `src/data/lessons/`, а не вёрсткой.
+
 ```
 /
 ├── CLAUDE.md               # этот файл
 └── ts-dojo/
     ├── PROGRESS.md         # мой прогресс, ведёшь ты
-    ├── tsconfig.json       # strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes
-    ├── package.json        # typescript 5.9.3, vitest
-    ├── vitest.config.ts    # typecheck включён для lessons/**/*.test.ts
-    └── lessons/
-        └── NN-topic/
-            ├── README.md        # краткая теория + ссылки на доки
-            ├── exercise.ts      # задания с TODO
-            └── exercise.test.ts # проверки через expectTypeOf / @ts-expect-error
+    ├── package.json        # react, vite, monaco-editor, typescript 5.9.3, vitest
+    ├── tsconfig.json       # конфиг приложения (src/)
+    ├── tsconfig.lessons.json  # конфиг консольных упражнений (lessons/)
+    ├── vercel.json
+    ├── src/
+    │   ├── monaco/setup.ts     # воркеры, compilerOptions, диагностики, проба типа
+    │   ├── components/         # TsPlayground, TaskCard, ExperimentCard, FlagToggles
+    │   ├── pages/              # IntroPage, LessonPage
+    │   └── data/
+    │       ├── types.ts        # Lesson, Experiment, Task, Check
+    │       ├── index.ts        # реестр уроков + программа всех 37 тем
+    │       └── lessons/NN-topic.ts
+    └── lessons/NN-topic/       # те же задания для консоли
+        ├── README.md
+        ├── exercise.ts
+        └── exercise.test.ts
 ```
 
-Все команды запускаются из `ts-dojo/`.
+Команды из `ts-dojo/`:
+
+```
+npm run dev      # приложение на localhost
+npm run build    # tsc по src + сборка
+npm run check    # tsc --noEmit по консольным упражнениям
+npm test         # vitest run --typecheck
+```
+
+### Как добавлять урок
+
+1. Новый файл `src/data/lessons/NN-topic.ts`, экспортирует объект `Lesson`.
+2. Зарегистрировать его в `src/data/index.ts` (массив `lessons`) — в программе он сам
+   станет кликабельным.
+3. Для консольной версии — каталог `lessons/NN-topic/` с теми же заданиями.
+
+Структура урока в данных повторяет формат ниже: `theory` — абзацы, `experiments` — варианты
+кода с предсказанием и разбором, `tasks` — задания со стартовым кодом, проверками, подсказками
+по уровням и эталонным решением.
 
 ## Формат урока
 1. **Разогрев (2–3 вопроса)** — проверь, что я помню из прошлого урока (смотри PROGRESS.md).
