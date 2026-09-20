@@ -61,6 +61,7 @@ export function applyFlags(flags: Flags): void {
     allowNonTsExtensions: true,
     noEmit: true,
     skipLibCheck: true,
+    verbatimModuleSyntax: true,
     ...flags,
   });
 }

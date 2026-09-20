@@ -16,6 +16,13 @@ import { inferKeyword } from './lessons/14-infer.ts';
 import { templateLiterals } from './lessons/15-template-literals.ts';
 import { recursiveTypes } from './lessons/16-recursive-types.ts';
 import { buildUtilities } from './lessons/17-build-utilities.ts';
+import { variance } from './lessons/18-variance.ts';
+import { overloads } from './lessons/19-overloads.ts';
+import { functionTypes } from './lessons/20-function-types.ts';
+import { brandedTypes } from './lessons/21-branded-types.ts';
+import { tsconfigFlags } from './lessons/22-tsconfig-flags.ts';
+import { declarationFiles } from './lessons/23-declaration-files.ts';
+import { modules } from './lessons/24-modules.ts';
 
 export const lessons: Lesson[] = [
   structuralTyping,
@@ -35,6 +42,13 @@ export const lessons: Lesson[] = [
   templateLiterals,
   recursiveTypes,
   buildUtilities,
+  variance,
+  overloads,
+  functionTypes,
+  brandedTypes,
+  tsconfigFlags,
+  declarationFiles,
+  modules,
 ];
 
 export function findLesson(slug: string): Lesson | undefined {

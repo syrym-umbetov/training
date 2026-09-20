@@ -9,6 +9,7 @@ export const LESSON_OPTIONS: ts.CompilerOptions = {
   moduleDetection: ts.ModuleDetectionKind.Force,
   noEmit: true,
   skipLibCheck: true,
+  verbatimModuleSyntax: true,
   strict: true,
   strictNullChecks: true,
   strictFunctionTypes: true,
