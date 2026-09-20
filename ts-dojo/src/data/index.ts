@@ -10,6 +10,12 @@ import { constraints } from './lessons/08-constraints.ts';
 import { keyofIndexed } from './lessons/09-keyof-indexed.ts';
 import { constTypeParameters } from './lessons/10-const-type-parameters.ts';
 import { whenNotGeneric } from './lessons/11-when-not-generic.ts';
+import { mappedTypes } from './lessons/12-mapped-types.ts';
+import { conditionalTypes } from './lessons/13-conditional-types.ts';
+import { inferKeyword } from './lessons/14-infer.ts';
+import { templateLiterals } from './lessons/15-template-literals.ts';
+import { recursiveTypes } from './lessons/16-recursive-types.ts';
+import { buildUtilities } from './lessons/17-build-utilities.ts';
 
 export const lessons: Lesson[] = [
   structuralTyping,
@@ -23,6 +29,12 @@ export const lessons: Lesson[] = [
   keyofIndexed,
   constTypeParameters,
   whenNotGeneric,
+  mappedTypes,
+  conditionalTypes,
+  inferKeyword,
+  templateLiterals,
+  recursiveTypes,
+  buildUtilities,
 ];
 
 export function findLesson(slug: string): Lesson | undefined {
