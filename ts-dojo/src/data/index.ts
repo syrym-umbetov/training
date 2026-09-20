@@ -5,6 +5,11 @@ import { narrowing } from './lessons/03-narrowing.ts';
 import { typePredicates } from './lessons/04-type-predicates.ts';
 import { literalTypes } from './lessons/05-literal-types.ts';
 import { interfaceVsType } from './lessons/06-interface-vs-type.ts';
+import { genericFunctions } from './lessons/07-generic-functions.ts';
+import { constraints } from './lessons/08-constraints.ts';
+import { keyofIndexed } from './lessons/09-keyof-indexed.ts';
+import { constTypeParameters } from './lessons/10-const-type-parameters.ts';
+import { whenNotGeneric } from './lessons/11-when-not-generic.ts';
 
 export const lessons: Lesson[] = [
   structuralTyping,
@@ -13,6 +18,11 @@ export const lessons: Lesson[] = [
   typePredicates,
   literalTypes,
   interfaceVsType,
+  genericFunctions,
+  constraints,
+  keyofIndexed,
+  constTypeParameters,
+  whenNotGeneric,
 ];
 
 export function findLesson(slug: string): Lesson | undefined {
