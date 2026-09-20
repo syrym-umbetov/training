@@ -5,6 +5,9 @@ TypeScript 5.9.3 · vitest 5.0.1 · Node 22
 
 ## Текущий урок: 01 — Structural typing, assignability, excess property checks
 
+Дожо теперь веб-приложение: https://ts-dojo-beta.vercel.app
+Компилятор 5.9.3 работает в браузере, консольная версия в `lessons/` осталась.
+
 Предсказание пройдено: **2 из 5** (верно (2) и (3), неверно (1), (4), (5)).
 Упражнения не решены.
 
