@@ -1,12 +1,12 @@
 # Прогресс TypeScript Dojo
 
-TypeScript 5.9.3 · vitest 5.0.1 · Node 22
-Флаги: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`
+TypeScript 5.9.3 · vitest 5.0.1 · Node 22 · https://ts-dojo-beta.vercel.app
+Флаги: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`
+
+Курс развёрнут целиком: 37 уроков, 64 эксперимента, 159 вариантов кода, 100 заданий.
+Каждый сниппет проверен компилятором — см. «Как это проверяется» в README.
 
 ## Текущий урок: 01 — Structural typing, assignability, excess property checks
-
-Дожо теперь веб-приложение: https://ts-dojo-beta.vercel.app
-Компилятор 5.9.3 работает в браузере, консольная версия в `lessons/` осталась.
 
 Предсказание пройдено: **2 из 5** (верно (2) и (3), неверно (1), (4), (5)).
 Упражнения не решены.

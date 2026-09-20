@@ -31,6 +31,11 @@ import { context } from './lessons/29-context.ts';
 import { refsAsProps } from './lessons/30-refs-as-props.ts';
 import { nextAppRouter } from './lessons/31-next-app-router.ts';
 import { runtimeValidation } from './lessons/32-runtime-validation.ts';
+import { typeChallenges } from './lessons/33-type-challenges.ts';
+import { eventEmitter } from './lessons/34-event-emitter.ts';
+import { apiClient } from './lessons/35-api-client.ts';
+import { monorepoTypes } from './lessons/36-monorepo-types.ts';
+import { readingErrors } from './lessons/37-reading-errors.ts';
 
 export const lessons: Lesson[] = [
   structuralTyping,
@@ -65,6 +70,11 @@ export const lessons: Lesson[] = [
   refsAsProps,
   nextAppRouter,
   runtimeValidation,
+  typeChallenges,
+  eventEmitter,
+  apiClient,
+  monorepoTypes,
+  readingErrors,
 ];
 
 export function findLesson(slug: string): Lesson | undefined {
