@@ -42,7 +42,7 @@ export function ExperimentCard({ experiment, flags }: Props) {
       </div>
 
       <TsPlayground
-        fileName={`file:///exp-${experiment.id}-${active.id}.ts`}
+        fileName={`file:///exp-${experiment.id}-${active.id}.tsx`}
         code={code}
         onCodeChange={(next) => setCodes((prev) => ({ ...prev, [active.id]: next }))}
         flags={flags}

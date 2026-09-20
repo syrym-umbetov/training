@@ -72,7 +72,7 @@ export function TaskCard({ task, index, flags }: Props) {
       )}
 
       <TsPlayground
-        fileName={`file:///task-${task.id}.ts`}
+        fileName={`file:///task-${task.id}.tsx`}
         code={code}
         onCodeChange={(next) => {
           setCode(next);

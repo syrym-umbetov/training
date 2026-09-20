@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import { join } from 'node:path';
 
 /** Mirrors the compiler options the browser playground applies. */
 export const LESSON_OPTIONS: ts.CompilerOptions = {
@@ -7,6 +8,7 @@ export const LESSON_OPTIONS: ts.CompilerOptions = {
   module: ts.ModuleKind.ESNext,
   moduleResolution: ts.ModuleResolutionKind.Node10,
   moduleDetection: ts.ModuleDetectionKind.Force,
+  jsx: ts.JsxEmit.ReactJSX,
   noEmit: true,
   skipLibCheck: true,
   verbatimModuleSyntax: true,
@@ -18,7 +20,9 @@ export const LESSON_OPTIONS: ts.CompilerOptions = {
   exactOptionalPropertyTypes: true,
 };
 
-const FILE = '/lesson.ts';
+// Inside the project directory, so `react` and friends resolve from node_modules
+// exactly as they do for the app itself.
+const FILE = join(process.cwd(), 'lesson.tsx');
 
 /**
  * Type-checks a snippet in memory and returns the error codes it produced,
@@ -26,7 +30,7 @@ const FILE = '/lesson.ts';
  * passes here cannot claim something the page contradicts.
  */
 export function check(code: string, options: ts.CompilerOptions = LESSON_OPTIONS): number[] {
-  const source = ts.createSourceFile(FILE, code, ts.ScriptTarget.ESNext, true);
+  const source = ts.createSourceFile(FILE, code, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX);
   const host = ts.createCompilerHost(options, true);
   const originalGetSource = host.getSourceFile.bind(host);
 
@@ -46,7 +50,7 @@ export function check(code: string, options: ts.CompilerOptions = LESSON_OPTIONS
 }
 
 export function describeDiagnostics(code: string): string[] {
-  const source = ts.createSourceFile(FILE, code, ts.ScriptTarget.ESNext, true);
+  const source = ts.createSourceFile(FILE, code, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX);
   const host = ts.createCompilerHost(LESSON_OPTIONS, true);
   const originalGetSource = host.getSourceFile.bind(host);
   host.getSourceFile = (name, lv, onError, shouldCreate) =>

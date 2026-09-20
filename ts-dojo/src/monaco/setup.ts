@@ -4,6 +4,7 @@ import { editor, Uri } from 'monaco-editor/editor/editor.api.js';
 import * as typescript from 'monaco-editor/languages/features/typescript/register.js';
 import EditorWorker from 'monaco-editor/editor/editor.worker.js?worker';
 import TsWorker from 'monaco-editor/languages/features/typescript/ts.worker.js?worker';
+import { REACT_LIBS } from './react-types.ts';
 
 type WorkerEnv = { MonacoEnvironment?: { getWorker(id: string, label: string): Worker } };
 
@@ -49,12 +50,25 @@ export const FLAG_DOCS: Record<FlagName, string> = {
 /** ts.ModuleDetectionKind.Force — monaco's enums don't expose it, the option does. */
 const MODULE_DETECTION_FORCE = 3;
 
+let reactRegistered = false;
+
+/** Ships React's .d.ts into the in-browser language service, once. */
+function registerReactTypes(): void {
+  if (reactRegistered) return;
+  reactRegistered = true;
+  for (const lib of REACT_LIBS) {
+    typescript.typescriptDefaults.addExtraLib(lib.content, lib.path);
+  }
+}
+
 export function applyFlags(flags: Flags): void {
+  registerReactTypes();
   typescript.typescriptDefaults.setCompilerOptions({
     target: typescript.ScriptTarget.ESNext,
     lib: ['esnext.full'],
     module: typescript.ModuleKind.ESNext,
     moduleResolution: typescript.ModuleResolutionKind.NodeJs,
+    jsx: typescript.JsxEmit.ReactJSX,
     // Every playground is its own file. Without this they are global scripts
     // and a `class Celsius` in one lesson collides with the same name in another.
     moduleDetection: MODULE_DETECTION_FORCE,

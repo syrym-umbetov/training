@@ -23,6 +23,14 @@ import { brandedTypes } from './lessons/21-branded-types.ts';
 import { tsconfigFlags } from './lessons/22-tsconfig-flags.ts';
 import { declarationFiles } from './lessons/23-declaration-files.ts';
 import { modules } from './lessons/24-modules.ts';
+import { reactProps } from './lessons/25-react-props.ts';
+import { genericComponents } from './lessons/26-generic-components.ts';
+import { polymorphic } from './lessons/27-polymorphic.ts';
+import { hooks } from './lessons/28-hooks.ts';
+import { context } from './lessons/29-context.ts';
+import { refsAsProps } from './lessons/30-refs-as-props.ts';
+import { nextAppRouter } from './lessons/31-next-app-router.ts';
+import { runtimeValidation } from './lessons/32-runtime-validation.ts';
 
 export const lessons: Lesson[] = [
   structuralTyping,
@@ -49,6 +57,14 @@ export const lessons: Lesson[] = [
   tsconfigFlags,
   declarationFiles,
   modules,
+  reactProps,
+  genericComponents,
+  polymorphic,
+  hooks,
+  context,
+  refsAsProps,
+  nextAppRouter,
+  runtimeValidation,
 ];
 
 export function findLesson(slug: string): Lesson | undefined {
