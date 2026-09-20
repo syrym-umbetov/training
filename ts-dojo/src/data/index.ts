@@ -1,7 +1,19 @@
 import type { Lesson } from './types.ts';
 import { structuralTyping } from './lessons/01-structural-typing.ts';
+import { topBottomTypes } from './lessons/02-top-bottom-types.ts';
+import { narrowing } from './lessons/03-narrowing.ts';
+import { typePredicates } from './lessons/04-type-predicates.ts';
+import { literalTypes } from './lessons/05-literal-types.ts';
+import { interfaceVsType } from './lessons/06-interface-vs-type.ts';
 
-export const lessons: Lesson[] = [structuralTyping];
+export const lessons: Lesson[] = [
+  structuralTyping,
+  topBottomTypes,
+  narrowing,
+  typePredicates,
+  literalTypes,
+  interfaceVsType,
+];
 
 export function findLesson(slug: string): Lesson | undefined {
   return lessons.find((l) => l.slug === slug);

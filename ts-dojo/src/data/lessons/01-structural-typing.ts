@@ -48,6 +48,7 @@ draw({ x: 1, y: 2, z: 3 });
 `,
           verdict:
             'Ошибка TS2353. Литерал написан прямо в позиции аргумента — он свежий, проверка срабатывает.',
+          expect: [2353],
         },
         {
           id: 'variable',
@@ -63,6 +64,7 @@ draw(cube);
 `,
           verdict:
             'Ошибки нет. Литерал присвоили переменной — свежесть потеряна, остаётся только structural assignability, а ей лишнее поле не мешает.',
+          expect: [],
         },
         {
           id: 'return',
@@ -83,6 +85,7 @@ console.log(makeA(), makeB());
 `,
           verdict:
             'Ошибка только в makeA. Return — такая же позиция присваивания: свежий литерал проверяется, переменная нет.',
+          expect: [2353],
         },
         {
           id: 'spread',
@@ -105,6 +108,7 @@ console.log(a, b, c, probe);
 `,
           verdict:
             'Ошибки в (a) и (c), в (b) нет. Свойства, пришедшие из ...obj, свежести не несут — но в типе остаются: наведи на probe и увидишь { retries: number; timeout: number }. Собственный ключ рядом со spread остаётся свежим.',
+          expect: [2353, 2353],
         },
       ],
       takeaway:
@@ -134,6 +138,7 @@ console.log(f.value);
 `,
           verdict:
             'Ошибки нет — и это баг в проекте. Структурно классы идентичны, поэтому показания по Фаренгейту молча пройдут как Цельсий.',
+          expect: [],
         },
         {
           id: 'private',
@@ -155,6 +160,7 @@ console.log(f.value);
 `,
           verdict:
             'Ошибка TS2322: типы имеют раздельные объявления private-свойства unit. private делает класс номинальным — совместимым только с самим собой, по месту объявления. Два класса с одинаковым private-полем всё равно несовместимы.',
+          expect: [2322],
         },
       ],
       takeaway:
@@ -187,6 +193,7 @@ const noId = { name: 'Syrym' };
 // @ts-expect-error id обязателен
 logId(noId);
 `,
+      starterExpect: [18046, 2578, 2578],
       checks: [{ kind: 'noErrors' }],
       hints: [
         'Что именно читает функция из entity? Ровно это и требуй, не больше.',
@@ -223,6 +230,7 @@ const options: Options = { retries: 3, timeout: 1000 };
 
 console.log(options);
 `,
+      starterExpect: [2353],
       checks: [
         { kind: 'noErrors' },
         { kind: 'forbid', pattern: '\\bas\\s+\\w', message: 'Ассерты запрещены условием задания' },
@@ -260,6 +268,7 @@ const shape: Shape = { kind: 'circle', radius: 1, size: 2 };
 
 console.log(shape);
 `,
+      starterExpect: [2353],
       checks: [
         { kind: 'noErrors' },
         { kind: 'forbid', pattern: '\\bas\\s+\\w', message: 'Ассерты запрещены условием задания' },
@@ -304,6 +313,7 @@ const iface: SensorIface = { temp: 21, humidity: 40 };
 readAll(alias);
 readAll(iface);
 `,
+      starterExpect: [2345],
       checks: [
         { kind: 'noErrors' },
         { kind: 'require', pattern: 'interface\\s+SensorIface', message: 'SensorIface должен остаться interface' },
@@ -365,6 +375,7 @@ const wrong2: Celsius = f;
 
 console.log(wrong1, wrong2);
 `,
+      starterExpect: [2578, 2578],
       checks: [{ kind: 'noErrors' }],
       hints: [
         'Структурность в TypeScript ломает ровно одна вещь. Ты её видел в эксперименте выше.',

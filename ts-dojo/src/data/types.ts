@@ -6,6 +6,12 @@ export type Variant = {
   code: string;
   /** Shown after the learner reveals the answer. */
   verdict: string;
+  /**
+   * Error codes this snippet must produce, asserted by the lesson test suite —
+   * so a verdict can never drift away from what the compiler actually says.
+   * An empty array means "must compile clean".
+   */
+  expect: number[];
 };
 
 export type Experiment = {
@@ -29,6 +35,8 @@ export type Task = {
   brief: string;
   constraints: string[];
   starter: string;
+  /** Codes the untouched starter must produce, so a task can't start green. */
+  starterExpect: number[];
   checks: Check[];
   hints: string[];
   solution: string;
